@@ -1,375 +1,285 @@
+
 public class Board {
-	private String[][] board = new String[8][8];
-	private int plies = 4;
-	private long startTime;
-	private long thinkTime;
+	public int moves = 4;
+	public long begin, end;
+	public String myBoard[][] = new String[8][8];
 	
-	public Board(long time)
-	//public Board()
-	{
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				board[i][j] = "-";
-			}
-		}
-		thinkTime = time*1000;
+	public Board(long t) {
+		for(int i = 0; i < myBoard.length; i++) 
+			for(int j = 0; j < myBoard.length; j++)
+				myBoard[i][j] = "-";		
+		end = 1000 * t;
 	}
 	
-	
-	public int evaluate ()
-	{
-		int result = 0;
-	//Defense
-		//Check Horizontal
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length-2; j++)
-			{
-				if( j < board.length-3 )
-				{
-					if(board[i][j].equals("O") && board[i][j+1].equals("O") && board[i][j+2].equals("O"))
-					{
-						if((j == 0 && board[i][j+3].equals("X"))
-						|| (j+3 == 7 && board[i][j].equals("X"))
-						|| (j >= 2 && (board[i][j-1].equals("X") && board[i][j+3].equals("X"))))
-							result += 250;
-					}
-				}
-				if(board[i][j].equals("O") && board[i][j+1].equals("O"))
-				{
-					if((j == 0 && board[i][j+2].equals("X"))
-					|| (j+2 == 7 && board[i][j].equals("X"))
-					|| (j >= 1 && (board[i][j-1].equals("X") || board[i][j+2].equals("X"))))
-						result += 50;
-				}
-			}
-		}
-		//Check Vertical
-		for(int i = 0; i < board.length-3; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				if(i < board.length-3)
-				{
-					if(board[i][j].equals("O") && board[i+1][j].equals("O") && board[i+2][j].equals("O"))
-					{
-						if((i == 0 && board[i+3][j].equals("X"))
-						|| (i+3 == 7 && board[i][j].equals("X"))
-						|| (i >= 2 && (board[i-1][j].equals("X") && board[i+3][j].equals("X"))))
-							result += 250;
-					}
-				}
-				if(board[i][j].equals("O") && board[i+1][j].equals("O"))
-				{
-					if((i == 0 && board[i+2][j].equals("X"))
-					|| (i+2 == 7 && board[i][j].equals("X"))
-					|| (i >= 1 && (board[i-1][j].equals("X") || board[i+2][j].equals("X"))))
-						result += 50;
-				}
-			}
-		}
-		//Check Single
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				if(board[i][j].equals("O"))
-				{
-					if(i == 0 && j == 0 && (board[1][0].equals("X") || board[0][1].equals("X"))
-					|| i == 0 && j == 7 && (board[1][7].equals("X") || board[0][6].equals("X"))
-					|| i == 7 && j == 0 && (board[6][0].equals("X") || board[7][1].equals("X"))
-					|| i == 7 && j == 7 && (board[6][7].equals("X") || board[7][6].equals("X"))
-					|| i == 0 && j >= 1 && j <= 6 && 
-					(board[i][j-1].equals("X") || board[i+1][j].equals("X") || board[i][j+1].equals("X"))
-					|| i == 7 && j >= 1 && j <= 6 && 
-					(board[i][j-1].equals("X") || board[i-1][j].equals("X") || board[i][j+1].equals("X"))
-					|| j == 0 && i >= 1 && i <= 6 && 
-					(board[i-1][j].equals("X") || board[i][j+1].equals("X") || board[i+1][j].equals("X"))
-					|| j == 7 && i >= 1 && i <= 6 && 
-					(board[i-1][j].equals("X") || board[i][j-1].equals("X") || board[i+1][j].equals("X"))
-					|| i >= 1 && i <= 6 && j >= 1 && j <= 6 && 
-					(board[i-1][j].equals("X") || board[i][j-1].equals("X") || board[i+1][j].equals("X") || board[i][j+1].equals("X")))
-					{
-						result += 50;
-					}
-				}
-			}
-		}
-	//Offense
-		if(board[3][3].equals("X") || board[3][4].equals("X") || board[4][3].equals("X") || board[4][4].equals("X"))
-		{
-			result += 100;
-		}
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				if(board[i][j].equals("X"))
-				{
-					if(i == 0 && j == 0 && (board[1][0].equals("X") || board[0][1].equals("X"))
-					|| i == 0 && j == 7 && (board[1][7].equals("X") || board[0][6].equals("X"))
-					|| i == 7 && j == 0 && (board[6][0].equals("X") || board[7][1].equals("X"))
-					|| i == 7 && j == 7 && (board[6][7].equals("X") || board[7][6].equals("X"))
-					|| i == 0 && j >= 1 && j <= 6 && 
-					(board[i][j-1].equals("X") || board[i+1][j].equals("X") || board[i][j+1].equals("X"))
-					|| i == 7 && j >= 1 && j <= 6 && 
-					(board[i][j-1].equals("X") || board[i-1][j].equals("X") || board[i][j+1].equals("X"))
-					|| j == 0 && i >= 1 && i <= 6 && 
-					(board[i-1][j].equals("X") || board[i][j+1].equals("X") || board[i+1][j].equals("X"))
-					|| j == 7 && i >= 1 && i <= 6 && 
-					(board[i-1][j].equals("X") || board[i][j-1].equals("X") || board[i+1][j].equals("X"))
-					|| i >= 1 && i <= 6 && j >= 1 && j <= 6 && 
-					(board[i-1][j].equals("X") || board[i][j-1].equals("X") || board[i+1][j].equals("X") || board[i][j+1].equals("X")))
-					{
-						result += 50;
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-
-	public void makemove()
-	{
-		int best=-20000,depth=plies,score,mi=0,mj=0;
-		startTime = System.currentTimeMillis();
-		for (int i=0; i<board.length; i++)
-		{
-			for (int j=0; j<board.length; j++)
-			{
-				if (board[i][j].equals("-"))
-				{
-					board[i][j]="X"; // make move on board
-					score = min(depth-1, Integer.MIN_VALUE, Integer.MAX_VALUE);
-					//System.out.println("i:"+i+"\tj:"+j+"\tbest:"+best+"\tscore:"+score);
-					if (score > best)
-					{
-						mi=i;
-						mj=j;
-						best=score;
-					}
-					board[i][j]="-"; // undo move
-					if(System.currentTimeMillis() - startTime >= thinkTime)
-						break;
-				}
-			}
-		}
-		System.out.println("\nmy move is "+mi+" "+mj);
-		board[mi][mj]="X";
-	}
-	public int min(int depth, int alpha, int beta)
-	{
-		int best=20000;
-		//System.out.println(System.currentTimeMillis() - startTime);
-		if(System.currentTimeMillis() - startTime < thinkTime)
-		{
-			if(checkWinner() != 0)
-				return (checkWinner());
-			if(depth == 0)
-				return (evaluate());
-			for (int i=0; i<board.length; i++)
-			{
-				for (int j=0; j<board.length; j++)
-				{
-					if (board[i][j].equals("-"))
-					{
-						board[i][j] = "O"; // make move on board
-						best = Math.min(best, max(depth-1, alpha, beta));
-						/*
-						for(int k = 0; k < plies-depth; k++)
-						{
-							System.out.print("  ");
-						}
-						System.out.println("best:"+best+"\talpha:"+alpha+"\tbeta:"+beta);
-						*/
-						if(best <= alpha)
-						{
-							board[i][j] = "-"; // undo move
-							return best;
-						}
-						beta = Math.min(beta, best);
-						board[i][j] = "-"; // undo move
-					}
-				}
-			}
-		}
-		return(best);
-	}
-
-	public int max(int depth, int alpha, int beta)
-	{
-		int best=-20000;
-		//System.out.println(System.currentTimeMillis() - startTime);
-		if(System.currentTimeMillis() - startTime < thinkTime)
-		{
-			if(checkWinner() != 0)
-				return (checkWinner());
-			if(depth == 0)
-				return (evaluate());
-			for(int i=0; i<board.length; i++)
-			{
-				for (int j=0; j<board.length; j++)
-				{
-					if (board[i][j].equals("-"))
-					{
-						board[i][j] = "X"; // make move on board
-						best = Math.max(best, min(depth-1, alpha, beta));
-						/*
-						for(int k = 0; k < plies-depth; k++)
-						{
-							System.out.print("  ");
-						}
-						System.out.println("best:"+best+"\talpha:"+alpha+"\tbeta:"+beta);
-						*/
-						if(best >= beta)
-						{
-							board[i][j] = "-"; // undo move
-							return best;
-						}
-						alpha = Math.max(alpha, best);
-						board[i][j] = "-"; // undo move
-					}
-				}
-			}
-		}
-		return(best);
-	}
+	public void move() {
+		int row = 0,
+			col = 0,
+			top =- 20000,
+			tmp = moves,
+			points;
 		
+		begin = System.currentTimeMillis();
+		for (int i=0; i<myBoard.length; i++) {
+			for (int j=0; j<myBoard.length; j++) {
+				if (myBoard[i][j].equals("-")) {
+					myBoard[i][j]="X"; 
+					points = min(tmp-1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+					if (points > top) {
+						row=i;
+						col=j;
+						top=points;
+					}
+					myBoard[i][j]="-";
+					if(System.currentTimeMillis() - begin >= end) break;
+				}
+			}
+		}
+		System.out.println("\nA.I. move: " + row + " " + col);
+		myBoard[row][col] = "X";
+	}
 	
-	public boolean makeMove(String move)
-	{
-		if(!validMove(move))
-		{
+	public int calculate() {
+		int res = 0;
+		for(int i=0; i<myBoard.length; i++) {
+			for(int j=0; j<myBoard.length - 2; j++) {
+				if( j<myBoard.length - 3) {
+					if(myBoard[i][j].equals("O") && myBoard[i][j+1].equals("O") && myBoard[i][j+2].equals("O")) {
+						if((j==0 && myBoard[i][j+3].equals("X")) || (j+3==7 && myBoard[i][j].equals("X"))
+						|| (j>=2 && (myBoard[i][j-1].equals("X") && myBoard[i][j+3].equals("X"))))
+							res += 250;
+					}
+				}
+				if(myBoard[i][j].equals("O") && myBoard[i][j+1].equals("O")) {
+					if((j == 0 && myBoard[i][j+2].equals("X"))
+					|| (j+2 == 7 && myBoard[i][j].equals("X"))
+					|| (j >= 1 && (myBoard[i][j-1].equals("X") || myBoard[i][j+2].equals("X"))))
+						res += 50;
+				}
+			}
+		}
+
+		for(int i = 0; i < myBoard.length-3; i++) {
+			for(int j = 0; j < myBoard.length; j++) {
+				if(i < myBoard.length-3) {
+					if(myBoard[i][j].equals("O") && myBoard[i+1][j].equals("O") && myBoard[i+2][j].equals("O")) {
+						if((i == 0 && myBoard[i+3][j].equals("X"))
+						|| (i+3 == 7 && myBoard[i][j].equals("X"))
+						|| (i >= 2 && (myBoard[i-1][j].equals("X") && myBoard[i+3][j].equals("X"))))
+							res += 250;
+					}
+				}
+				if(myBoard[i][j].equals("O") && myBoard[i+1][j].equals("O")) {
+					if((i == 0 && myBoard[i+2][j].equals("X"))
+					|| (i+2 == 7 && myBoard[i][j].equals("X"))
+					|| (i >= 1 && (myBoard[i-1][j].equals("X") || myBoard[i+2][j].equals("X"))))
+						res += 50;
+				}
+			}
+		}
+
+		for(int i = 0; i < myBoard.length; i++) {
+			for(int j = 0; j < myBoard.length; j++) {
+				if(myBoard[i][j].equals("O")) {
+					if(i==0 && j==0 && (myBoard[1][0].equals("X") || myBoard[0][1].equals("X"))
+					|| i==0 && j==7 && (myBoard[1][7].equals("X") || myBoard[0][6].equals("X"))
+					|| i==7 && j==0 && (myBoard[6][0].equals("X") || myBoard[7][1].equals("X"))
+					|| i==7 && j==7 && (myBoard[6][7].equals("X") || myBoard[7][6].equals("X"))
+					|| i==0 && j>=1 && j<=6 && 
+					(myBoard[i][j-1].equals("X") || myBoard[i+1][j].equals("X") || myBoard[i][j+1].equals("X"))
+					|| i==7 && j>=1 && j<=6 && 
+					(myBoard[i][j-1].equals("X") || myBoard[i-1][j].equals("X") || myBoard[i][j+1].equals("X"))
+					|| j==0 && i>=1 && i<=6 && 
+					(myBoard[i-1][j].equals("X") || myBoard[i][j+1].equals("X") || myBoard[i+1][j].equals("X"))
+					|| j==7 && i>=1 && i<=6 && 
+					(myBoard[i-1][j].equals("X") || myBoard[i][j-1].equals("X") || myBoard[i+1][j].equals("X"))
+					|| i>=1 && i<=6 && j>=1 && j<=6 
+					&& (myBoard[i-1][j].equals("X") || myBoard[i][j-1].equals("X") || myBoard[i+1][j].equals("X") || myBoard[i][j+1].equals("X")))
+						res += 50;					
+				}
+			}
+		}
+		
+		if(myBoard[3][3].equals("X") 
+		|| myBoard[3][4].equals("X") 
+		|| myBoard[4][3].equals("X") 
+		|| myBoard[4][4].equals("X"))
+			res += 100;
+		
+		for(int i=0; i<myBoard.length; i++) {
+			for(int j=0; j<myBoard.length; j++) {
+				if(myBoard[i][j].equals("X")) {
+					if(i==0 && j==0 && (myBoard[1][0].equals("X") || myBoard[0][1].equals("X"))
+					|| i==0 && j==7 && (myBoard[1][7].equals("X") || myBoard[0][6].equals("X"))
+					|| i==7 && j==0 && (myBoard[6][0].equals("X") || myBoard[7][1].equals("X"))
+					|| i==7 && j==7 && (myBoard[6][7].equals("X") || myBoard[7][6].equals("X"))
+					|| i==0 && j>=1 && j<=6 && 
+					(myBoard[i][j-1].equals("X") || myBoard[i+1][j].equals("X") || myBoard[i][j+1].equals("X"))
+					|| i==7 && j>=1 && j<=6 && 
+					(myBoard[i][j-1].equals("X") || myBoard[i-1][j].equals("X") || myBoard[i][j+1].equals("X"))
+					|| j==0 && i>=1 && i<=6 && 
+					(myBoard[i-1][j].equals("X") || myBoard[i][j+1].equals("X") || myBoard[i+1][j].equals("X"))
+					|| j==7 && i>=1 && i<=6 && 
+					(myBoard[i-1][j].equals("X") || myBoard[i][j-1].equals("X") || myBoard[i+1][j].equals("X"))
+					|| i>=1 && i<=6 && j>=1 && j<=6 
+					&& (myBoard[i-1][j].equals("X") || myBoard[i][j-1].equals("X") || myBoard[i+1][j].equals("X") || myBoard[i][j+1].equals("X")))
+						res += 50;					
+				}
+			}
+		}
+		return res;
+	}
+	
+	public int getBoardRow(char row) {
+		switch(row) {
+		case 'A': return 0;
+		case 'B': return 1;
+		case 'C': return 2;
+		case 'D': return 3;
+		case 'E': return 4;
+		case 'F': return 5;
+		case 'G': return 6;
+		case 'H': return 7;
+		default: return -1;		
+		}
+	}
+	public int getBoardColumn(char col) {
+		switch(col) {
+		case '1': return 0;
+		case '2': return 1;
+		case '3': return 2;
+		case '4': return 3;
+		case '5': return 4;
+		case '6': return 5;
+		case '7': return 6;
+		case '8': return 7;
+		default: return -1;		
+		}
+	}
+	
+	public boolean isMovable(String move) {
+		if(move.length() < 2) return false; 
+		
+		int row = getBoardRow(move.toUpperCase().charAt(0));
+		if(row < 0) return false; 
+		
+		int col = getBoardColumn(move.toUpperCase().charAt(1));
+		if(col < 0) return false; 
+		
+		if(!myBoard[row][col].equals("-")) return false; 
+		
+		myBoard[row][col] = "O";
+		return true;
+	}
+	
+	public boolean isDraw() {
+		for(int i = 0; i < myBoard.length; i++) 
+			for(int j = 0; j < myBoard.length; j++) 
+				if(myBoard[i][j].equals("-"))				
+					return false;	
+		System.out.println("\n"+toString() + "Game is draw!");
+		return true;
+	}	
+	
+	public int isWinner() {
+		for(int i = 0; i < myBoard.length; i++) {
+			for(int j = 0; j < myBoard.length-4; j++) {
+				if(myBoard[i][j].equals("O") && myBoard[i][j+1].equals("O")
+				&& myBoard[i][j+2].equals("O") && myBoard[i][j+3].equals("O"))
+					return -5000;				
+				if(myBoard[i][j].equals("X") && myBoard[i][j+1].equals("X")
+				&& myBoard[i][j+2].equals("X") && myBoard[i][j+3].equals("X"))				
+					return 5000;				
+			}
+		}
+		
+		for(int i = 0; i < myBoard.length-4; i++) {
+			for(int j = 0; j < myBoard.length; j++) {
+				if(myBoard[i][j].equals("O") && myBoard[i+1][j].equals("O")
+				&& myBoard[i+2][j].equals("O") && myBoard[i+3][j].equals("O"))				
+					return -5000;
+				
+				if(myBoard[i][j].equals("X") && myBoard[i+1][j].equals("X")
+				&& myBoard[i+2][j].equals("X") && myBoard[i+3][j].equals("X"))				
+					return 5000;				
+			}
+		}
+
+		for(int i = 0; i < myBoard.length; i++) {
+			for(int j = 0; j < myBoard.length; j++) {
+				if(myBoard[i][j].equals("-"))				
+					return 0;				
+			}
+		}
+		System.out.println("\n"+toString()+"Draw game");
+		return 1;
+	}	
+	
+	public boolean makeMove(String move) {
+		if(!isMovable(move)) {
 			System.out.println("\nInvalid move!!");
 			return false;
 		}
 		return true;
 	}
 	
-	private boolean validMove(String move)
-	{
-		if(move.length() < 2) { return false; }
-		
-		int row = getRow(move.toUpperCase().charAt(0));
-		if(row < 0) { return false; }
-		
-		int col = getColumn(move.toUpperCase().charAt(1));
-		if(col < 0) { return false; }
-		
-		if(!board[row][col].equals("-")) { return false; }
-		
-		board[row][col] = "O";
-		return true;
-	}
-	
-	private int getRow(char row)
-	{
-		if(row == 'A') return 0;
-		if(row == 'B') return 1;
-		if(row == 'C') return 2;
-		if(row == 'D') return 3;
-		if(row == 'E') return 4;
-		if(row == 'F') return 5;
-		if(row == 'G') return 6;
-		if(row == 'H') return 7;
-		return -1;
-	}
-	private int getColumn(char col)
-	{
-		if(col == '1') return 0;
-		if(col == '2') return 1;
-		if(col == '3') return 2;
-		if(col == '4') return 3;
-		if(col == '5') return 4;
-		if(col == '6') return 5;
-		if(col == '7') return 6;
-		if(col == '8') return 7;
-		return -1;
-	}
-	
-	public int checkWinner()
-	{
-		//Check Horizontal
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length-4; j++)
-			{
-				if(board[i][j].equals("O") && board[i][j+1].equals("O")
-				&& board[i][j+2].equals("O") && board[i][j+3].equals("O"))
-				{
-					return -5000;
-				}
-				if(board[i][j].equals("X") && board[i][j+1].equals("X")
-				&& board[i][j+2].equals("X") && board[i][j+3].equals("X"))
-				{
-					return 5000;
+	public int min(int depth, int alpha, int beta) {
+		int best=20000;
+		if(System.currentTimeMillis() - begin < end) {
+			if(isWinner() != 0)
+				return (isWinner());
+			if(depth == 0)
+				return (calculate());
+			for (int i=0; i<myBoard.length; i++) {
+				for (int j=0; j<myBoard.length; j++) {
+					if (myBoard[i][j].equals("-")) {
+						myBoard[i][j] = "O";
+						best = Math.min(best, max(depth-1, alpha, beta));
+						if(best <= alpha) {
+							myBoard[i][j] = "-";
+							return best;
+						}
+						beta = Math.min(beta, best);
+						myBoard[i][j] = "-";
+					}
 				}
 			}
 		}
-		//Check Vertical
-		for(int i = 0; i < board.length-4; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				if(board[i][j].equals("O") && board[i+1][j].equals("O")
-				&& board[i+2][j].equals("O") && board[i+3][j].equals("O"))
-				{
-					return -5000;
-				}
-				if(board[i][j].equals("X") && board[i+1][j].equals("X")
-				&& board[i+2][j].equals("X") && board[i+3][j].equals("X"))
-				{
-					return 5000;
-				}
-			}
-		}
-		//Check Draw
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				if(board[i][j].equals("-"))
-				{
-					return 0;
-				}
-			}
-		}
-		System.out.println("\n"+toString()+"Draw game");
-		return 1;
-	}
-	
-	
-	public boolean checkDraw()
-	{
-		for(int i = 0; i < board.length; i++)
-		{
-			for(int j = 0; j < board.length; j++)
-			{
-				if(board[i][j].equals("-"))
-				{
-					return false;
-				}
-			}
-		}
-		System.out.println("\n"+toString()+"Draw game");
-		return true;
+		return(best);
 	}
 
-	public String toString()
-	{
+	public int max(int depth, int alpha, int beta) {
+		int best=-20000;
+		if(System.currentTimeMillis() - begin < end) {
+			if(isWinner() != 0)
+				return (isWinner());
+			if(depth == 0)
+				return (calculate());
+			for(int i=0; i<myBoard.length; i++) {
+				for (int j=0; j<myBoard.length; j++) {
+					if (myBoard[i][j].equals("-")) {
+						myBoard[i][j] = "X";
+						best = Math.max(best, min(depth-1, alpha, beta));
+						if(best >= beta) {
+							myBoard[i][j] = "-";
+							return best;
+						}
+						alpha = Math.max(alpha, best);
+						myBoard[i][j] = "-"; 
+					}
+				}
+			}
+		}
+		return(best);
+	}
+	
+	public String toString() {
 		String curr = "\n  1 2 3 4 5 6 7 8\n";
 		String []col = {"A", "B", "C", "D", "E", "F", "G", "H"};
 		
-		for(int i = 0; i < board.length; i++)
-		{
+		for(int i = 0; i < myBoard.length; i++) {
 			curr += col[i];
-			for(int j = 0; j < board.length; j++)
-			{
-				curr += " "+board[i][j];
-			}
+			for(int j = 0; j < myBoard.length; j++)			
+				curr += " "+myBoard[i][j];			
 			curr += "\n";
 		}
 		curr += "\n";
