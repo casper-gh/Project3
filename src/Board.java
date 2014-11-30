@@ -1,6 +1,3 @@
-// Name: Chi-Wai Lei
-// CS420 - Project 3
-
 public class Board {
 	private String[][] board = new String[8][8];
 	private int plies = 4;

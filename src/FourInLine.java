@@ -1,6 +1,3 @@
-// Name: Chi-Wai Lei
-// CS420 - Project 3
-
 import java.util.Scanner;
 
 public class FourInLine {
